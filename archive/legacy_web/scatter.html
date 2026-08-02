@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KFC门店散点图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        #scatterChart {
+            width: 100%;
+            height: 600px;
+        }
+        .filter-container {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        label {
+            font-weight: bold;
+            color: #555;
+        }
+        select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>KFC门店分布散点图</h1>
+        
+        <div class="filter-container">
+            <div class="filter-item">
+                <label for="citySelect">选择城市：</label>
+                <select id="citySelect">
+                    <option value="all">全部城市</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label for="districtSelect">选择区域：</label>
+                <select id="districtSelect">
+                    <option value="all">全部区域</option>
+                </select>
+            </div>
+            <button onclick="updateChart()">应用筛选</button>
+        </div>
+        
+        <div id="scatterChart"></div>
+    </div>
+
+    <script>
+        // 存储所有门店数据
+        let allStores = [];
+        let cities = ['all'];
+        let districts = ['all'];
+        
+        // 初始化图表
+        const chart = echarts.init(document.getElementById('scatterChart'));
+        
+        // 使用硬编码的示例数据
+        console.log('使用硬编码的示例数据');
+        
+        // 示例数据（基于CSV文件的前几条记录）
+        const sampleData = [
+            {storecode: 'CD1103', storename: '攀枝花王府井餐厅', cityName: '攀枝花', districtName: '仁和区', address: '三线大道路150号1栋一层铺位号G-1F-P001', starttime: '10:00', endtime: '22:00', lat: 26.523733, lng: 101.738578},
+            {storecode: 'CDU032', storename: '阳光餐厅', cityName: '攀枝花', districtName: '东区', address: '炳草岗江南三路德铭阳光购物中心一层0812-3103971(13550918929)', starttime: '07:00', endtime: '22:00', lat: 26.580142, lng: 101.718517},
+            {storecode: 'CDU129', storename: '金瓯餐厅', cityName: '攀枝花', districtName: '东区', address: '炳草岗江南三路金瓯广场A区  电话:0812-3153008(13550918929)', starttime: '00:00', endtime: '23:59', lat: 26.571025, lng: 101.726806},
+            {storecode: 'CDU381', storename: '攀枝花万达餐厅', cityName: '攀枝花', districtName: '东区', address: '东区攀枝花市东区机场路123号万达广场一楼肯德基(电话0812-3103157)', starttime: '07:00', endtime: '23:00', lat: 26.564713, lng: 101.728088},
+            {storecode: 'CDU051', storename: '新华餐厅', cityName: '攀枝花', districtName: '东区', address: '新华街世贸中心大楼一层(攀枝花中心广场)(0812-3129528)13550918929', starttime: '00:00', endtime: '23:59', lat: 26.580559, lng: 101.714799}
+        ];
+        
+        // 加载示例数据
+        allStores = sampleData;
+        
+        // 收集城市和区域数据
+        sampleData.forEach(store => {
+            if (!cities.includes(store.cityName)) {
+                cities.push(store.cityName);
+            }
+            if (!districts.includes(store.districtName)) {
+                districts.push(store.districtName);
+            }
+        });
+        
+        console.log('加载的门店数据数量:', allStores.length);
+        console.log('城市列表:', cities);
+        console.log('区域列表:', districts);
+        
+        // 填充城市和区域选择框
+        populateSelect('citySelect', cities);
+        populateSelect('districtSelect', districts);
+        
+        // 初始化图表
+        updateChart();
+        
+        // 填充选择框
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '';
+            
+            options.forEach(option => {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option === 'all' ? '全部' : option;
+                select.appendChild(optionElement);
+            });
+        }
+        
+        // 更新图表
+        function updateChart() {
+            console.log('开始更新图表');
+            const selectedCity = document.getElementById('citySelect').value;
+            const selectedDistrict = document.getElementById('districtSelect').value;
+            
+            // 筛选数据
+            const filteredStores = allStores.filter(store => {
+                const cityMatch = selectedCity === 'all' || store.cityName === selectedCity;
+                const districtMatch = selectedDistrict === 'all' || store.districtName === selectedDistrict;
+                return cityMatch && districtMatch;
+            });
+            
+            console.log('筛选后的门店数量:', filteredStores.length);
+            console.log('筛选后的门店数据:', filteredStores);
+            
+            // 准备散点数据
+            const scatterData = filteredStores.map(store => {
+                return [store.lng, store.lat, store.storename];
+            });
+            
+            console.log('散点数据:', scatterData);
+            
+            // 计算地图范围
+            let minLng = Infinity, maxLng = -Infinity;
+            let minLat = Infinity, maxLat = -Infinity;
+            
+            filteredStores.forEach(store => {
+                minLng = Math.min(minLng, store.lng);
+                maxLng = Math.max(maxLng, store.lng);
+                minLat = Math.min(minLat, store.lat);
+                maxLat = Math.max(maxLat, store.lat);
+            });
+            
+            // 如果没有数据，设置默认范围
+            if (filteredStores.length === 0) {
+                minLng = 100;
+                maxLng = 120;
+                minLat = 20;
+                maxLat = 30;
+            }
+            
+            console.log('地图范围 - 经度:', minLng, '-', maxLng);
+            console.log('地图范围 - 纬度:', minLat, '-', maxLat);
+            
+            // 设置图表选项
+            const option = {
+                title: {
+                    text: `KFC门店分布 (共${filteredStores.length}家)`,
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: function(params) {
+                        return params.value[2];
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    name: '经度',
+                    min: minLng - 0.1,
+                    max: maxLng + 0.1
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '纬度',
+                    min: minLat - 0.1,
+                    max: maxLat + 0.1
+                },
+                series: [{
+                    name: 'KFC门店',
+                    type: 'scatter',
+                    data: scatterData,
+                    symbolSize: 10,
+                    itemStyle: {
+                        color: '#ff6b00'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.3)'
+                        }
+                    }
+                }]
+            };
+            
+            console.log('图表配置:', option);
+            
+            // 更新图表
+            chart.setOption(option);
+            console.log('图表更新完成');
+        }
+        
+        // 响应窗口大小变化
+        window.addEventListener('resize', function() {
+            chart.resize();
+        });
+    </script>
+</body>
+</html>

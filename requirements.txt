@@ -1,0 +1,4 @@
+# KFC_in_China 依赖
+requests>=2.28
+matplotlib>=3.5
+numpy>=1.21

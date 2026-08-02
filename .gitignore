@@ -1,0 +1,29 @@
+# ===== 密钥 / 环境变量（绝不提交） =====
+.env
+*.env
+.env.local
+
+# ===== Python =====
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# ===== 第三方地理数据缓存（体积大，用 scripts/fetch_geojson.py 重新下载） =====
+china_geojson/
+
+# ===== 生成的散点图（由 scripts/generate_plots.py 生成） =====
+scatter_plots/
+scatter_plots_extended/
+
+# ===== 日志 =====
+fetch.log
+*.log
+
+# ===== 系统文件 =====
+.DS_Store
+Thumbs.db
+
+# ===== 旧版占位 / 编辑器文件（非项目必需） =====
+geojson/
+*.code-workspace

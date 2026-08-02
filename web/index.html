@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KFC 门店分布 · 中国</title>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --panel: #171b26;
+      --panel-2: #1f2533;
+      --border: #2a3142;
+      --text: #e8eaf0;
+      --muted: #9aa3b2;
+      --kfc: #e4002b;
+      --accent: #ff5a36;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+      font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif; }
+    header {
+      padding: 18px 24px; display: flex; align-items: center; gap: 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, #15171f, #1b1f2b);
+    }
+    header .logo {
+      width: 38px; height: 38px; border-radius: 9px; background: var(--kfc);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: #fff; font-size: 18px;
+    }
+    header h1 { font-size: 19px; margin: 0; font-weight: 700; }
+    header .sub { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+    .stats { display: flex; gap: 14px; padding: 16px 24px; flex-wrap: wrap; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 14px 18px; min-width: 150px; flex: 1;
+    }
+    .card .v { font-size: 26px; font-weight: 800; color: var(--accent); line-height: 1.1; }
+    .card .k { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+    .grid { display: grid; grid-template-columns: 1.55fr 1fr; gap: 16px; padding: 0 24px 24px; }
+    .panel {
+      background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px; min-height: 520px;
+    }
+    .panel .title { font-size: 14px; font-weight: 700; margin: 4px 6px 8px; color: var(--text); }
+    #map { width: 100%; height: 560px; }
+    .side { display: flex; flex-direction: column; gap: 16px; }
+    .side .panel { min-height: 250px; }
+    #barProv, #barCity { width: 100%; height: 250px; }
+    .loading { color: var(--muted); text-align: center; padding: 60px; }
+    footer { color: var(--muted); font-size: 12px; padding: 0 24px 24px; }
+    a { color: var(--accent); }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">K</div>
+    <div>
+      <h1>KFC 门店分布 · 中国</h1>
+      <div class="sub">数据工程化示例 · 坐标由公开地理编码得到 · 仅作展示用途</div>
+    </div>
+  </header>
+
+  <div class="stats" id="stats">
+    <div class="card"><div class="v" id="st-total">—</div><div class="k">门店总数</div></div>
+    <div class="card"><div class="v" id="st-prov">—</div><div class="k">覆盖省级行政区</div></div>
+    <div class="card"><div class="v" id="st-city">—</div><div class="k">覆盖城市</div></div>
+    <div class="card"><div class="v" id="st-top">—</div><div class="k">门店最多省份</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>门店分布地图（颜色 = 省份门店密度，散点 = 单店坐标）</span>
+        <span id="legend" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;">
+          少
+          <span style="display:inline-block;width:90px;height:9px;border-radius:5px;
+            background:linear-gradient(90deg,#1f2533,#e4002b,#ff7a59);"></span>
+          多
+        </span>
+      </div>
+      <div id="map"><div class="loading">地图加载中…</div></div>
+    </div>
+    <div class="side">
+      <div class="panel">
+        <div class="title">省份 TOP 15（按门店数）</div>
+        <div id="barProv"><div class="loading">加载中…</div></div>
+      </div>
+      <div class="panel">
+        <div class="title">城市 TOP 15（按门店数）</div>
+        <div id="barCity"><div class="loading">加载中…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    数据来源：KFC 公开门店信息经采集与地理编码得到；底图 GeoJSON 来自
+    <a href="https://github.com/zhChuXiao/ChinaGeoJson" target="_blank" rel="noreferrer">zhChuXiao/ChinaGeoJson</a>（版权归原作者）。
+    本地预览请运行 <code>python -m http.server</code> 后访问本页（直接 file:// 打开会因浏览器安全策略无法 fetch 本地 JSON）。
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
