@@ -8,9 +8,8 @@
 (function () {
   "use strict";
 
-  var GEO_URL = "../assets/geo/provinces.geojson";
-  var DATA_URL = "assets/stores.json";
-
+  // 数据已内嵌在 web/assets/data.js（window.KFC_GEO / window.KFC_DATA），
+  // 无需 fetch，file:// 双击打开或 GitHub Pages 均可直接渲染。
   function fmt(n) { return (n || 0).toLocaleString("zh-CN"); }
 
   function cleanName(name) {
@@ -33,15 +32,14 @@
     return hex(c);
   }
 
-  Promise.all([
-    fetch(GEO_URL).then(function (r) { return r.json(); }),
-    fetch(DATA_URL).then(function (r) { return r.json(); }),
-  ])
-    .then(function (res) { echarts.registerMap("china", res[0]); render(res[1]); })
-    .catch(function (err) {
-      document.getElementById("map").innerHTML = '<div class="loading">数据加载失败：' + err + "</div>";
-      console.error(err);
-    });
+  if (!window.KFC_GEO || !window.KFC_DATA) {
+    document.getElementById("map").innerHTML =
+      '<div class="loading">未找到内嵌数据（web/assets/data.js）。请先运行 scripts/prepare_web_data.py 生成数据后重新构建。</div>';
+    console.error("KFC_GEO / KFC_DATA not found");
+    return;
+  }
+  echarts.registerMap("china", window.KFC_GEO);
+  render(window.KFC_DATA);
 
   function render(data) {
     var meta = data.meta || {};

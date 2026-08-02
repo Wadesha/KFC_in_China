@@ -1,3 +1,5 @@
+🌐 在线看板：https://wadesha.github.io/KFC_in_China/
+
 # KFC_in_China · 肯德基中国门店分布（数据工程化示例）
 
 采集 KFC 全国门店信息 → 地理编码得到经纬度 → 工程化整理 → **网页看板展示门店分布**。
@@ -81,8 +83,10 @@ python scripts/build_geo.py
 python scripts/prepare_web_data.py
 ```
 
-> 仓库已自带 `assets/geo/provinces.geojson` 与 `web/assets/stores.json`，
-> 因此**克隆后无需重跑脚本即可直接查看网页**。
+> 仓库已自带 `assets/geo/provinces.geojson`、`web/assets/stores.json`，
+> 并由 `scripts/prepare_web_data.py` 进一步合并为**内嵌数据** `web/assets/data.js`
+> （同时包含 GeoJSON 与门店坐标，页面无需 fetch，直接双击 `web/index.html` 即可打开）。
+> 因此**克隆后无需重跑脚本、也无需本地服务器即可直接查看网页**。
 
 ---
 
@@ -94,7 +98,8 @@ python scripts/prepare_web_data.py
 - **条形图**：省份 TOP15、城市 TOP15
 
 ### 本地预览
-因浏览器安全策略，`file://` 直接打开无法 `fetch` 本地 JSON，请起一个本地服务器：
+数据已内嵌（`web/assets/data.js`），**直接双击 `web/index.html` 即可打开**，无需本地服务器、不受 `file://` 的 fetch 限制。
+如需用本地服务器预览（等价效果）：
 
 ```bash
 # 在项目根目录执行（保持运行），浏览器访问 http://localhost:8000/web/index.html
@@ -102,8 +107,8 @@ python -m http.server 8000
 ```
 
 ### GitHub Pages
-将本仓库开启 Pages（Source 选 `main` 分支根目录）后，访问
-`https://Wadesha.github.io/KFC_in_China/web/index.html` 即可。
+仓库已开启 Pages（Source = `main` 分支根目录）。根目录 `index.html` 会自动跳转到看板，
+直接访问 **https://wadesha.github.io/KFC_in_China/** 即可（数据内嵌，无 CORS/fetch 问题）。
 
 ---
 
