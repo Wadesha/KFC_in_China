@@ -1,0 +1,1 @@
+# Disable Jekyll processing so all static assets (JSON/GeoJSON/JS) are served as-is.
